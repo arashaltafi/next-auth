@@ -1,7 +1,7 @@
 import connectToDB from '@/configs/db'
 import UserModel from '@/models/User'
 import { NextRequest } from 'next/server'
-import { hashPassword } from '@/utils/Auth'
+import { generateToken, hashPassword } from '@/utils/Auth'
 
 export async function POST(req: NextRequest) {
     try {
@@ -22,15 +22,16 @@ export async function POST(req: NextRequest) {
             )
         }
 
-        const { firstName, lastName, userName, email, password } = await req.json()
+        const userAgent = req.headers.get('User-Agent')
+        const { firstName, lastName, email, password } = await req.json()
 
-        if (!firstName || !lastName || !userName || !email || !password) {
+        if (!firstName || !lastName || !email || !password) {
             return Response.json(
                 { message: 'All fields are required' },
                 { status: 400 }
             )
         }
-        if (!firstName.trim() || !lastName.trim() || !userName.trim() || !email.trim() || !password.trim()) {
+        if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
             return Response.json(
                 { message: 'All fields are required' },
                 { status: 400 }
@@ -45,12 +46,6 @@ export async function POST(req: NextRequest) {
         if (lastName.length < 4) {
             return Response.json(
                 { message: 'Last name must be at least 4 characters' },
-                { status: 400 }
-            )
-        }
-        if (userName.length < 4) {
-            return Response.json(
-                { message: 'Username must be at least 4 characters' },
                 { status: 400 }
             )
         }
@@ -72,16 +67,17 @@ export async function POST(req: NextRequest) {
         // generate token
         // store in db
 
-        const isUserExist = await UserModel.findOne({ $or: [{ userName }, { email }] })
+        const isUserExist = await UserModel.findOne({ email })
         if (isUserExist) {
             return Response.json({ message: 'User Already Exist' }, { status: 400 })
         }
 
         const hashedPassword = await hashPassword(password)
         console.log('hashedPassword:', hashedPassword)
+        const token = await generateToken({ email })
 
         await UserModel.create({
-            firstName, lastName, userName, email, hashedPassword, role: 'USER'
+            firstName, lastName, email, hashedPassword, token, userAgent, role: 'USER'
         })
 
         return Response.json({ message: "User Created Successfully" }, { status: 201 })

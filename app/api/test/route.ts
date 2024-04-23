@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
     try {
         const { password, hashedPassword } = await req.json()
         const token = req.headers.get('Authorization')
+        const userAgent = req.headers.get('User-Agent')
 
         if (!password || !hashedPassword) {
             return Response.json(
