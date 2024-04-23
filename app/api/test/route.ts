@@ -17,7 +17,10 @@ export async function GET(req: NextRequest) {
             email: email
         })
 
-        cookies().set('Authorization', token)
+        cookies().set('Authorization', token, {
+            path: '/',
+            maxAge: Date.now() + 1000 * 60 * 60 * 24 * 30,
+        })
 
         return Response.json(
             {
@@ -61,7 +64,7 @@ export async function POST(req: NextRequest) {
         if (isVerifyToken === false) {
             return Response.json(
                 { message: "Token is inValid" },
-                { status: 401 }) 
+                { status: 401 })
         }
 
         const { email } = await decodeToken(token)
