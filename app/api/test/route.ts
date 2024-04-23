@@ -1,4 +1,5 @@
 import { hashPassword, comparePassword, generateToken, verifyToken, decodeToken } from "@/utils/Auth"
+import { cookies } from "next/headers";
 import { NextRequest } from 'next/server'
 
 export async function GET(req: NextRequest) {
@@ -15,6 +16,8 @@ export async function GET(req: NextRequest) {
         const token = await generateToken({
             email: email
         })
+
+        cookies().set('Authorization', token)
 
         return Response.json(
             {
@@ -34,8 +37,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     try {
         const { password, hashedPassword } = await req.json()
-        const token = req.headers.get('Authorization')
+        const token = cookies().get('Authorization')?.value
         const userAgent = req.headers.get('User-Agent')
+
+        console.log('userAgent:', userAgent)
 
         if (!password || !hashedPassword) {
             return Response.json(

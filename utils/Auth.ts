@@ -14,7 +14,7 @@ const comparePassword = async (password: string, hashedPassword: string) => {
 
 const generateToken = (data: any) => {
     return jwt.sign(data, appSecret, {
-        expiresIn: '1m',
+        expiresIn: '5m',
         algorithm: 'HS256'
     })
 }
