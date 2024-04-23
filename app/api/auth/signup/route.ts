@@ -62,11 +62,6 @@ export async function POST(req: NextRequest) {
             )
         }
 
-        //is user exist
-        // hash pass
-        // generate token
-        // store in db
-
         const isUserExist = await UserModel.findOne({ email })
         if (isUserExist) {
             return Response.json({ message: 'User Already Exist' }, { status: 400 })
