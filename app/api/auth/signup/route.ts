@@ -71,8 +71,10 @@ export async function POST(req: NextRequest) {
         console.log('hashedPassword:', hashedPassword)
         const token = await generateToken({ email })
 
+        const users = await UserModel.find({})
+
         await UserModel.create({
-            firstName, lastName, email, hashedPassword, token, userAgent, role: 'USER'
+            firstName, lastName, email, hashedPassword, token, userAgent, role: users.length > 0 ? 'USER' : 'ADMIN'
         })
 
         return Response.json({ message: "User Created Successfully" }, { status: 201 })
