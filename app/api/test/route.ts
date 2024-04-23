@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
         cookies().set('Authorization', token, {
             path: '/',
             maxAge: Date.now() + 1000 * 60 * 60 * 24 * 30,
+            httpOnly: true
         })
 
         return Response.json(
