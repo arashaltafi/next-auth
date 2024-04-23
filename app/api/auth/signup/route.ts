@@ -71,6 +71,11 @@ export async function POST(req: NextRequest) {
         // generate token
         // store in db
 
+        const isUserExist = await UserModel.findOne({ $or: [{ userName }, { email }] })
+        if (isUserExist) {
+            return Response.json({ message: 'User Already Exist' }, { status: 400 })
+        }
+
         await UserModel.create({
             firstName, lastName, userName, email, password, role: 'USER'
         })
