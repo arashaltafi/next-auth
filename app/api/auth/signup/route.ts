@@ -1,6 +1,7 @@
 import connectToDB from '@/configs/db'
 import UserModel from '@/models/User'
 import { NextRequest } from 'next/server'
+import { hashPassword } from '@/utils/Auth'
 
 export async function POST(req: NextRequest) {
     try {
@@ -76,8 +77,11 @@ export async function POST(req: NextRequest) {
             return Response.json({ message: 'User Already Exist' }, { status: 400 })
         }
 
+        const hashedPassword = await hashPassword(password)
+        console.log('hashedPassword:', hashedPassword)
+
         await UserModel.create({
-            firstName, lastName, userName, email, password, role: 'USER'
+            firstName, lastName, userName, email, hashedPassword, role: 'USER'
         })
 
         return Response.json({ message: "User Created Successfully" }, { status: 201 })
