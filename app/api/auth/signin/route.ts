@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
                 { status: 400 }
             )
         }
-        
+
         const isSuccessPass = await comparePassword(password, hashedPass)
         if (!isSuccessPass) {
             return Response.json(
@@ -60,7 +60,10 @@ export async function POST(req: NextRequest) {
 
         const token = await generateToken({ email }, 1)
 
-        await collection.updateOne({ email }, { $set: { userAgent, token } })
+        await collection.updateOne(
+            { email },
+            { $set: { userAgent, token } }
+        )
 
         cookies().set('Authorization', token, {
             path: '/',
