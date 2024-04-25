@@ -1,6 +1,5 @@
-import { cookies } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
 const Dashboard = async () => {
     const data = apiCall()
