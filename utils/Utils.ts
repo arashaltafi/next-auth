@@ -12,9 +12,9 @@ const comparePassword = async (password: string, hashedPassword: string) => {
     return await bcrypt.compare(password, hashedPassword);
 }
 
-const generateToken = (data: any) => {
+const generateToken = (data: any, expireDay: number) => {
     return jwt.sign(data, appSecret, {
-        expiresIn: '5m',
+        expiresIn: `${expireDay}d`,
         algorithm: 'HS256'
     })
 }
@@ -32,6 +32,15 @@ const decodeToken = (token: string) => {
     return jwt.decode(token, appSecret)
 }
 
+const maxAge = (day: number) => {
+    return Date.now() + day * 24 * 60 * 60 * 1000
+}
+
 export {
-    hashPassword, comparePassword, generateToken, verifyToken, decodeToken
+    hashPassword,
+    comparePassword,
+    generateToken,
+    verifyToken,
+    decodeToken,
+    maxAge
 }

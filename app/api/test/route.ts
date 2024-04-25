@@ -1,4 +1,4 @@
-import { hashPassword, comparePassword, generateToken, verifyToken, decodeToken } from "@/utils/Auth"
+import { hashPassword, comparePassword, generateToken, verifyToken, decodeToken } from "@/utils/Utils"
 import { cookies } from "next/headers";
 import { NextRequest } from 'next/server'
 
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
         const hashedPassword = await hashPassword(password)
         const token = await generateToken({
             email: email
-        })
+        }, 1)
 
         cookies().set('Authorization', token, {
             path: '/',
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
         }
 
         const isSuccessPass = await comparePassword(password, hashedPassword)
-        const isVerifyToken = await verifyToken(token)
+        const isVerifyToken = verifyToken(token)
 
         if (isVerifyToken === false) {
             return Response.json(

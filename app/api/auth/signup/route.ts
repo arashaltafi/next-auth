@@ -1,26 +1,12 @@
 import connectToDB from '@/configs/db'
-import UserModel from '@/models/User'
 import { NextRequest } from 'next/server'
-import { generateToken, hashPassword } from '@/utils/Auth'
+import { generateToken, hashPassword, maxAge } from '@/utils/Utils'
+import { cookies } from 'next/headers';
 
 export async function POST(req: NextRequest) {
     try {
-        connectToDB()
-
-        try {
-            const body = await req.json()
-            if (!body) {
-                return Response.json(
-                    { message: 'All fields are required' },
-                    { status: 400 }
-                )
-            }
-        } catch (error) {
-            return Response.json(
-                { message: 'All fields are required' },
-                { status: 400 }
-            )
-        }
+        const db = await connectToDB();
+        const collection = db.collection('user');
 
         const userAgent = req.headers.get('User-Agent')
         const { firstName, lastName, email, password } = await req.json()
@@ -61,20 +47,33 @@ export async function POST(req: NextRequest) {
                 { status: 400 }
             )
         }
+        if (!userAgent) {
+            return Response.json(
+                { message: 'User Agent is not valid' },
+                { status: 400 }
+            )
+        }
 
-        const isUserExist = await UserModel.findOne({ email })
+        const isUserExist = await collection.findOne({ email })
         if (isUserExist) {
             return Response.json({ message: 'User Already Exist' }, { status: 400 })
         }
 
         const hashedPassword = await hashPassword(password)
-        console.log('hashedPassword:', hashedPassword)
-        const token = await generateToken({ email })
+        const token = await generateToken({ email }, 1)
 
-        const users = await UserModel.find({})
+        const users = await collection.find({}).toArray()
+        const id = users.length > 0 ? users[users.length - 1].id + 1 : 1
+        const role = users.length > 0 ? 'USER' : 'ADMIN'
 
-        await UserModel.create({
-            firstName, lastName, email, hashedPassword, token, userAgent, role: users.length > 0 ? 'USER' : 'ADMIN'
+        cookies().set('Authorization', token, {
+            path: '/',
+            maxAge: maxAge(1),
+            httpOnly: true
+        })
+
+        await collection.insertOne({
+            id, firstName, lastName, email, hashedPassword, token, userAgent, role
         })
 
         return Response.json({ message: "User Created Successfully" }, { status: 201 })
