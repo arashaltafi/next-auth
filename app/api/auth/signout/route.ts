@@ -1,5 +1,4 @@
 import connectToDB from "@/configs/db";
-import { verifyToken } from "@/utils/Utils";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
