@@ -6,7 +6,7 @@ import { NextRequest } from "next/server";
 export async function GET(req: NextRequest) {
     try {
         const db = await connectToDB();
-        const collection = db.collection('user');
+        const collection = db.collection('post');
         const userAgent = req.headers.get('User-Agent')
         const token = cookies().get('Authorization')?.value || ''
 
@@ -19,11 +19,8 @@ export async function GET(req: NextRequest) {
             )
         }
 
-        const userData = await collection.findOne(
-            { token, userAgent },
-            { projection: { _id: 0, firstName: 1, lastName: 1, email: 1, role: 1 } }
-        )
-        if (!userData) {
+        const postData = await collection.find({}).limit(10).toArray()
+        if (!postData) {
             cookies().delete('Authorization')
             return Response.json(
                 { message: "User is not exist" },
@@ -32,7 +29,7 @@ export async function GET(req: NextRequest) {
         }
 
         return Response.json(
-            { data: userData },
+            { data: postData },
             { status: 200 }
         )
     } catch (error: any) {
