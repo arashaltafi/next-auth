@@ -1,29 +1,54 @@
-import { redirect, RedirectType } from 'next/navigation'
-import React from 'react'
+"use client"
 
-const Dashboard = async () => {
-    const data = apiCall()
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+
+const Dashboard = () => {
+    const [data, setData] = useState<{
+        firstName: string,
+        lastName: string,
+        email: string,
+        role: string
+    } | null>(null)
+
+    const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+    const router = useRouter()
+
+    useEffect(() => {
+        const apiCall = async () => {
+            const response = await fetch('/api/home/dashboard', {
+                next: { revalidate: 10 },
+            })
+            const res = await response.json()
+            if (response.status === 401) {
+                alert(res.message)
+                router.replace('/signin')
+                setErrorMsg(res.message)
+            } else {
+                setData(res.data)
+            }
+        }
+        apiCall()
+    }, [])
 
     return (
-        <div className='flex flex-col items-center justify-center gap-8'>
+        <div className='w-full h-screen flex flex-col items-center justify-center gap-16 bg-red-900'>
             <h1 className='text-6xl font-bold'>Dashboard</h1>
             {
-                <p>{data}</p>
+                errorMsg && <h3 className='text-2xl text-red-500'>{errorMsg}</h3>
+            }
+            {
+                data &&
+                <div className='flex flex-col gap-4 items-center justify-center text-2xl'>
+                    <h3 className='self-start font-light'>firstName: <span className='font-bold'>{data?.firstName}</span></h3>
+                    <h3 className='self-start font-light'>lastName: <span className='font-bold'>{data?.lastName}</span></h3>
+                    <h3 className='self-start font-light'>email: <span className='font-bold'>{data?.email}</span></h3>
+                    <h3 className='self-start font-light'>role: <span className='font-bold'>{data?.role}</span></h3>
+                </div>
             }
         </div>
     )
 }
 
 export default Dashboard
-
-const apiCall = async () => {
-    const response = await fetch('http://localhost:3000/api/home/dashboard', {
-        next: { revalidate: 10 },
-    })
-    const res = await response.json()
-    if (response.status === 401) {
-        redirect('/signin', RedirectType.replace)
-    } else {
-        return res.data
-    }
-}
