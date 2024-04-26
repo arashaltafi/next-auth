@@ -1,6 +1,5 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const appSecret = "2fs7ej7fjafekawfhef92h2389fh239hf"
 
 const hashPassword = async (password: string) => {
     const salt = await bcrypt.genSalt(10);
@@ -13,7 +12,7 @@ const comparePassword = async (password: string, hashedPassword: string) => {
 }
 
 const generateToken = (data: any, expireDay: number) => {
-    return jwt.sign(data, appSecret, {
+    return jwt.sign(data, process.env.APP_SECRET, {
         expiresIn: `${expireDay}d`,
         algorithm: 'HS256'
     })
@@ -21,7 +20,7 @@ const generateToken = (data: any, expireDay: number) => {
 
 const verifyToken = (token: string) => {
     try {
-        jwt.verify(token, appSecret)
+        jwt.verify(token, process.env.APP_SECRET)
         return true;
     } catch (error) {
         return false;
@@ -29,7 +28,7 @@ const verifyToken = (token: string) => {
 }
 
 const decodeToken = (token: string) => {
-    return jwt.decode(token, appSecret)
+    return jwt.decode(token, process.env.APP_SECRET)
 }
 
 const maxAge = (day: number) => {
