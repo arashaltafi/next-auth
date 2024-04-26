@@ -23,7 +23,7 @@ const Dashboard = () => {
             const res = await response.json()
             if (response.status === 401) {
                 alert(res.message)
-                router.replace('/signin')
+                router.replace('/auth/signin')
                 setErrorMsg(res.message)
             } else {
                 setData(res.data)
