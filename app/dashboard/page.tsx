@@ -41,7 +41,7 @@ const Dashboard = () => {
         alert(res.message)
 
         if (response.status === 200) {
-            router.push('/signin')
+            router.push('/auth/signin')
         }
     }
 
