@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
             )
         }
         if (!token || token === '') {
+            cookies().delete('Authorization')
             return Response.json(
                 { message: 'Token is not valid' },
                 { status: 401 }
@@ -25,6 +26,7 @@ export async function GET(req: NextRequest) {
 
         const isValidToken = verifyToken(token)
         if (!isValidToken) {
+            cookies().delete('Authorization')
             return Response.json(
                 { message: "Token is inValid" },
                 { status: 401 }
@@ -36,6 +38,7 @@ export async function GET(req: NextRequest) {
             { projection: { _id: 0, firstName: 1, lastName: 1, email: 1, role: 1 } }
         )
         if (!userData) {
+            cookies().delete('Authorization')
             return Response.json(
                 { message: "User is not exist" },
                 { status: 401 }
