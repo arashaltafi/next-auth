@@ -32,9 +32,22 @@ const Dashboard = () => {
         apiCall()
     }, [])
 
+    const callApiSignOut = async () => {
+        const response = await fetch('/api/auth/signout', {
+            method: 'GET',
+            cache: 'no-store',
+        })
+        const res = await response.json()
+        alert(res.message)
+
+        if (response.status === 200) {
+            router.push('/signin')
+        }
+    }
+
     return (
-        <div className='w-full h-screen flex flex-col items-center justify-center gap-16 bg-red-900'>
-            <h1 className='text-6xl font-bold'>Dashboard</h1>
+        <div className='relative w-full h-screen flex flex-col items-center justify-center gap-16 bg-yellow-900'>
+            <h1 className='text-6xl font-bold absolute top-8'>Dashboard</h1>
             {
                 errorMsg && <h3 className='text-2xl text-red-500'>{errorMsg}</h3>
             }
@@ -47,6 +60,15 @@ const Dashboard = () => {
                     <h3 className='self-start font-light'>role: <span className='font-bold'>{data?.role}</span></h3>
                 </div>
             }
+
+            <button
+                className='absolute bottom-8 transition-all bg-red-500 hover:bg-red-700 text-white rounded-lg px-8 py-4'
+                onClick={() => {
+                    callApiSignOut()
+                }}
+            >
+                Sign Out
+            </button>
         </div>
     )
 }
